@@ -103,6 +103,7 @@ int main (int argc, char** argv){
             // actualiser notre noeud (elements restants, ...)
             for (BBNode n : childrens) {
                 cout << n << endl;
+                n.Evaluate();
                 if (n.borneInf < bestUpperBound) {
                     // faire quelque chose
                     if (n.isASolution()) { // je ne pense pas que çe soit bon, car une solution n'est pas forcément LA meilleure solution ==> faire un checkSolution(solution)

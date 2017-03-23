@@ -17,12 +17,12 @@ BBNode::BBNode(const BBNode & bbn)  {
 void BBNode::Evaluate() {
 
     if (this->numberOfElementsLeft - 1 > 0) { // dans le cas ou numberOfElementsLeft - 1 serait négatif (0 - 1)
-        cout << __PRETTY_FUNCTION__ << " --> elements left : " <<  numberOfElementsLeft << endl;
-        currentSolution.at(this->numberOfElementsLeft - 1) = piecesRef.at(0);
-        borneInf = (this->dataPtr->makespan - this->dataPtr->dueDate.at(numberOfElementsLeft - 1)) * this->dataPtr->penalty.at(numberOfElementsLeft - 1);
+        computeCurrentSolution(false);
+        computeLowerBound(false);
     }
     else {
-        currentSolution.at(this->numberOfElementsLeft - 1) = piecesRef.at(0);
+        computeCurrentSolution(true);
+        computeLowerBound(true);
     }
 
     --numberOfElementsLeft;
@@ -35,7 +35,7 @@ list<BBNode> BBNode::createChildren() {
 
     for (int i = 0; i < this->numberOfElementsLeft; i++) {
         BBNode tmp(*this);
-        tmp.Evaluate();
+        //tmp.Evaluate();
         tmp_list.push_back(tmp);
     }
 
@@ -58,7 +58,23 @@ bool BBNode::operator> (const BBNode & node) const{
     return (this->borneInf > node.borneInf);
 }
 
+void BBNode::computeLowerBound(bool isLastSolution) {
+    if (isLastSolution) {
+        borneInf = (this->dataPtr->makespan - this->dataPtr->dueDate.at(numberOfElementsLeft)) * this->dataPtr->penalty.at(numberOfElementsLeft);
+    }
+    else {
+        borneInf = (this->dataPtr->makespan - this->dataPtr->dueDate.at(numberOfElementsLeft - 1)) * this->dataPtr->penalty.at(numberOfElementsLeft - 1);
+    }
+}
 
+void BBNode::computeCurrentSolution(bool isLastSolution) {
+    if (isLastSolution) {
+        currentSolution.at(this->numberOfElementsLeft) = piecesRef.at(0);
+    }
+    else {
+        currentSolution.at(this->numberOfElementsLeft - 1) = piecesRef.at(0);
+    }
+}
 
 ostream & operator<< (ostream & os, const BBNode & bbn){
     os << "BI : " << bbn.borneInf << endl;
