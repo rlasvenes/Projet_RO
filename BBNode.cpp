@@ -21,7 +21,7 @@ void BBNode::Evaluate() {
         computeLowerBound(false);
     }
     else {
-        computeCurrentSolution(true);
+        computeCurrentSolution(true); // true for last element
         computeLowerBound(true);
     }
 
@@ -36,6 +36,8 @@ list<BBNode> BBNode::createChildren() {
     for (int i = 0; i < this->numberOfElementsLeft; i++) {
         BBNode tmp(*this);
         //tmp.Evaluate();
+        tmp.currentPiece = piecesRef.front();
+        piecesRef.erase(piecesRef.begin());
         tmp_list.push_back(tmp);
     }
 

@@ -5,6 +5,7 @@
 
 #include "BBNode.hpp"
 #include "DataSched.hpp"
+#include "PiecesFactory.h"
 
 #define BORNE_INF_DEFAULT_VALUE 0
 
@@ -74,7 +75,8 @@ int main (int argc, char** argv){
      *
     */
 
-    checkDataAfterReading(data);
+    //checkDataAfterReading(data);
+    PiecesFactory::fill(10, {3,2,5,6,2,6});
     vector<int> pieces = buildVectorOfPieces(data); // vecteur de pièces ex: <1,2,3,4,...,n> où n est le nb de pièces différentes
 
     BBNode parent(&data);
@@ -87,11 +89,6 @@ int main (int argc, char** argv){
     listNodes.push_back(parent); // on ajoute le parent à la liste des sommets à traiter
 
     while (!listNodes.empty()) { // tant qu'il y a des noeuds à traiter, on process
-        cout << "------------ AVANCEMENT ------------\n" <<
-                "taille liste : " << listNodes.size() << "\n" <<
-                "bestSolution.size() : " << bestSolution.size() << "\n" <<
-                "bestUpperBound : " << bestUpperBound << "\n" <<
-                "------------------------------------\n" << endl;
 
         BBNode currentNode = listNodes.front(); // on prend le premier noeud de la liste...
         listNodes.pop_front(); // ... et on l'enlève aussitôt après

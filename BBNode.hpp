@@ -15,6 +15,7 @@ class BBNode{
 
         int borneInf;
         int numberOfElementsLeft;
+        int currentPiece;
 
         vector<int> currentSolution;
         vector<int> piecesRef;
