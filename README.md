@@ -2,7 +2,7 @@
 
 ## Algorithme de _Branch and Bound_ en C++
 
-Ce programme permet de déterminer, en fonction de certains critères, de déterminer un ordre optimal de passage des pièces
+Ce programme permet de déterminer, en fonction de certains critères, un ordre optimal de passage des pièces
 afin d'atteindre l'objectif qui est de minimiser le coût.
 
 * Une pièce prend un certain temps pour être réalisé (_processing time_).
