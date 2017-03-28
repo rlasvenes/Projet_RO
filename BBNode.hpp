@@ -4,6 +4,7 @@
 #include <iostream>
 #include <list>
 #include <vector>
+#include <algorithm>
 
 #include "DataSched.hpp"
 
@@ -14,11 +15,11 @@ class BBNode{
         DataSched * dataPtr;        /* Pointer on the instance data */
 
         int borneInf;
-        int numberOfElementsLeft;
-        int currentPiece;
+        int lastPosNonFixed;
+        int lastDateOfLastFixedPiece;
 
         vector<int> currentSolution;
-        vector<int> piecesRef;
+        vector<bool> isFixed;
 
 
         // .....
@@ -26,13 +27,10 @@ class BBNode{
 
         BBNode(DataSched * ptr);    /* constructor for the root node */
         BBNode(const BBNode & bbn); /* copy contructor, used to create children */
-
         void Evaluate();
-        list<BBNode> createChildren();
         bool isASolution();
         vector<int> getSolution();
-        void computeLowerBound(bool isLastSolution);
-        void computeCurrentSolution(bool isLastSolution);
+        list<BBNode> createChildren();
         bool operator> (const BBNode & node) const;
 
 };

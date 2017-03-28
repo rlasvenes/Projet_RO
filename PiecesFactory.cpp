@@ -13,10 +13,12 @@ void PiecesFactory::refill(int nbPieces) {
 }
 
 void PiecesFactory::refill(int nbPieces, std::vector<int> usedPieces) {
-
+    piecesRef = std::vector<int>(nbPieces);
+    fill(nbPieces, usedPieces);
 }
 
 void PiecesFactory::fill(int nbPieces) {
+    piecesRef = std::vector<int>(nbPieces);
     for (int i = 0; i < nbPieces; i++) {
         piecesRef.at(i) = i + 1;
     }
@@ -25,9 +27,7 @@ void PiecesFactory::fill(int nbPieces) {
 void PiecesFactory::fill(int nbPieces, std::vector<int> usedPieces) {
     piecesRef = std::vector<int>(nbPieces);
 
-    for (int i = 0; i < nbPieces; i++) {
-        piecesRef.at(i) = i + 1;
-    }
+    fill(nbPieces);
 
     std::sort(usedPieces.begin(), usedPieces.end());
 

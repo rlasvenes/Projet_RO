@@ -5,37 +5,26 @@
 
 #include "BBNode.hpp"
 #include "DataSched.hpp"
-#include "PiecesFactory.h"
 
 #define BORNE_INF_DEFAULT_VALUE 0
 
 using namespace std;
 
-void checkDataAfterReading(DataSched d) {
-    cout << "STARTING TO CHECK DATA..." << endl;
-
-    for (auto it : d.dueDate) {
-        cout << "DUE DATE : " << it << endl;
+// va permettre de trouver la dernière valeur non fixée
+// grace à une différence de vector
+int checkSolution(DataSched d, vector<int> bestSolution) {
+    vector<int> copy = vector<int>(d.nbItems);
+    for (unsigned int i = 0; i < copy.size(); i++) {
+        copy.at(i) = i;
     }
 
-    for (auto it : d.penalty) {
-        cout << "PENALTY : " << it << endl;
-    }
+    vector<int> res(d.nbItems);
+    std::sort(bestSolution.begin(), bestSolution.end()); // <0,1,2,3,4,...,n>
+    auto it = set_difference(copy.begin(), copy.end(), bestSolution.begin(), bestSolution.end(),
+                             res.begin());
+    res.resize(it - res.begin());
 
-    for (auto it : d.procTime) {
-        cout << "PROC TIME : " << it << endl;
-    }
-
-    cout << "FINISH TO CHECK DATA." << endl;
-}
-
-vector<int> buildVectorOfPieces(DataSched d) {
-    vector<int> v(d.nbItems);
-
-    for (int i = 0; i < d.nbItems; i++) {
-        v.at(i) = i + 1;
-    }
-    return v;
+    return res.front();
 }
 
 int main (int argc, char** argv){
@@ -75,54 +64,40 @@ int main (int argc, char** argv){
      *
     */
 
-    //checkDataAfterReading(data);
-    PiecesFactory::fill(10, {3,2,5,6,2,6});
-    vector<int> pieces = buildVectorOfPieces(data); // vecteur de pièces ex: <1,2,3,4,...,n> où n est le nb de pièces différentes
-
-    BBNode parent(&data);
-    parent.piecesRef = pieces;
-
+    BBNode parent(&data); // racine de l'arbre
     parent.borneInf = BORNE_INF_DEFAULT_VALUE; // on met la borne inf du parent à 0
-    parent.numberOfElementsLeft = data.nbItems; // au début, y'a autant d'éléments à traiter que de pièces
-    parent.currentSolution = vector<int>(data.nbItems, 0); // notre solution (ordre de passage des pièces) = <0,0,0,0> avec n = 4
 
-    listNodes.push_back(parent); // on ajoute le parent à la liste des sommets à traiter
+    listNodes.push_back(parent);
 
-    while (!listNodes.empty()) { // tant qu'il y a des noeuds à traiter, on process
+    int nb_noeuds = 0;
+    while (!listNodes.empty()) {
+        BBNode currentNode = listNodes.back();
+        listNodes.pop_back();
 
-        BBNode currentNode = listNodes.front(); // on prend le premier noeud de la liste...
-        listNodes.pop_front(); // ... et on l'enlève aussitôt après
-
+        // si on trouve une borne intéréssante à parcourir (plus petite borne inf)
         if (currentNode.borneInf < bestUpperBound) {
-            list<BBNode> childrens = currentNode.createChildren(); // à ce moment là, la BI de chaque enfant est définie
-            //bestUpperBound = currentNode.borneInf;
+            list<BBNode> childrens = currentNode.createChildren();
+            nb_noeuds += childrens.size();
 
-            // actualiser notre noeud (elements restants, ...)
             for (BBNode n : childrens) {
                 cout << n << endl;
-                n.Evaluate();
+                cout << "BORNE SUP = " << bestUpperBound << endl;
                 if (n.borneInf < bestUpperBound) {
-                    // faire quelque chose
-                    if (n.isASolution()) { // je ne pense pas que çe soit bon, car une solution n'est pas forcément LA meilleure solution ==> faire un checkSolution(solution)
+                    if (n.isASolution()) { // si toutes les pièces sont fixées
                         bestSolution = n.getSolution();
+                        bestUpperBound = n.borneInf; // on actualise la borne sup
                     }
                     else {
-                        listNodes.push_back(n);
+                        listNodes.push_back(n); // on ajoute notre noeud à la liste de traitement
                     }
                 }
             }
         }
     }
 
-
-
     // ...
 
-
-
-
-
-
+    bestSolution.at(0) = checkSolution(data, bestSolution); // c'est TOUJOURS la première pièce dans le vecteur qui n'était jamais traité, donc at(0)
 
     cout << "Solution value : " << bestUpperBound << endl;
     cout << "Optimal solution : " << endl;
@@ -132,6 +107,11 @@ int main (int argc, char** argv){
         cout << *it << ",";
     }
     cout << ">" << endl;
+
+    cout << "========================================================" << endl;
+    cout << "Noeuds crées : " << nb_noeuds << endl;
+    cout << "Borne supérieure : " << bestUpperBound << endl;
+    cout << "========================================================" << endl;
 
     return 0;
 }

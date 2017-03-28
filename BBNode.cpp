@@ -2,51 +2,36 @@
 
 BBNode::BBNode(DataSched * ptr){
     this->dataPtr = ptr;
-    this->currentSolution = vector<int>(ptr->nbItems, 0); // on met le vecteur solution à nulle
+    this->currentSolution = vector<int>(ptr->nbItems, -1);
+    this->isFixed = vector<bool>(ptr->nbItems, false);
+    this->lastDateOfLastFixedPiece = ptr->makespan;
+
+    this->lastPosNonFixed = ptr->nbItems - 1; // - 1 pour éviter les segfault
 }
 
 BBNode::BBNode(const BBNode & bbn)  {
     this->dataPtr = bbn.dataPtr;
-
     this->borneInf = bbn.borneInf;
-    this->numberOfElementsLeft = bbn.numberOfElementsLeft;
     this->currentSolution = bbn.currentSolution;
-    this->piecesRef = bbn.piecesRef;
+    this->isFixed = bbn.isFixed;
+    this->lastDateOfLastFixedPiece = bbn.lastDateOfLastFixedPiece;
+
+    this->lastPosNonFixed = bbn.lastPosNonFixed;
 }
 
-void BBNode::Evaluate() {
+void BBNode::Evaluate(){
+    cout << __PRETTY_FUNCTION__ << " passage boucle ! " << this->lastDateOfLastFixedPiece << endl;
+    int maxi = max(this->lastDateOfLastFixedPiece - this->dataPtr->dueDate.at(currentSolution.at(lastPosNonFixed)), 0);
 
-    if (this->numberOfElementsLeft - 1 > 0) { // dans le cas ou numberOfElementsLeft - 1 serait négatif (0 - 1)
-        computeCurrentSolution(false);
-        computeLowerBound(false);
-    }
-    else {
-        computeCurrentSolution(true); // true for last element
-        computeLowerBound(true);
-    }
+    this->borneInf += (maxi) * this->dataPtr->penalty.at(currentSolution.at(lastPosNonFixed));
+    this->lastDateOfLastFixedPiece = this->lastDateOfLastFixedPiece - this->dataPtr->procTime.at(currentSolution.at(lastPosNonFixed)); // correspond à la dernière date pour la dernière pièce fixé
 
-    --numberOfElementsLeft;
-    piecesRef.erase(piecesRef.begin());
-}
-
-list<BBNode> BBNode::createChildren() {
-
-    list<BBNode> tmp_list;
-
-    for (int i = 0; i < this->numberOfElementsLeft; i++) {
-        BBNode tmp(*this);
-        //tmp.Evaluate();
-        tmp.currentPiece = piecesRef.front();
-        piecesRef.erase(piecesRef.begin());
-        tmp_list.push_back(tmp);
-    }
-
-    return tmp_list;
+    --lastPosNonFixed;
 }
 
 bool BBNode::isASolution() {
-    // ou bien: if (this->currentSolution.size() == this->dataPtr->nbItems) // donc vecteur rempli
-    if (numberOfElementsLeft == 0) {
+    // si il n'y a plus d'élément à fixé
+    if (lastPosNonFixed == 0) {
         return true;
     }
     return false;
@@ -56,27 +41,33 @@ vector<int> BBNode::getSolution() {
     return this->currentSolution;
 }
 
-bool BBNode::operator> (const BBNode & node) const{
+list<BBNode> BBNode::createChildren(){
+
+    list<BBNode> tmp_list;
+
+    for (unsigned int i = 0; i < isFixed.size(); i++) {
+        if (isFixed.at(i) == false) {
+            // i can take the piece
+            BBNode tmp(*this);
+            tmp.currentSolution.at(lastPosNonFixed) = i;
+            tmp.Evaluate();
+            tmp.isFixed.at(i) = true;
+            tmp_list.push_back(tmp);
+        }
+        else {
+            // i cannot take the piece
+            // do nothing
+        }
+    }
+
+    return tmp_list;
+}
+
+bool BBNode::operator> (const BBNode & node) const{ // cf les priorityQueue
     return (this->borneInf > node.borneInf);
 }
 
-void BBNode::computeLowerBound(bool isLastSolution) {
-    if (isLastSolution) {
-        borneInf = (this->dataPtr->makespan - this->dataPtr->dueDate.at(numberOfElementsLeft)) * this->dataPtr->penalty.at(numberOfElementsLeft);
-    }
-    else {
-        borneInf = (this->dataPtr->makespan - this->dataPtr->dueDate.at(numberOfElementsLeft - 1)) * this->dataPtr->penalty.at(numberOfElementsLeft - 1);
-    }
-}
 
-void BBNode::computeCurrentSolution(bool isLastSolution) {
-    if (isLastSolution) {
-        currentSolution.at(this->numberOfElementsLeft) = piecesRef.at(0);
-    }
-    else {
-        currentSolution.at(this->numberOfElementsLeft - 1) = piecesRef.at(0);
-    }
-}
 
 ostream & operator<< (ostream & os, const BBNode & bbn){
     os << "BI : " << bbn.borneInf << endl;
@@ -86,10 +77,5 @@ ostream & operator<< (ostream & os, const BBNode & bbn){
     }
     os << ">" << endl;
 
-    os << "PIECES : < ";
-    for (auto it : bbn.piecesRef){
-        os << it << " ";
-    }
-    os << ">" << endl;
     return os;
 }
