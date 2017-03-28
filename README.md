@@ -17,9 +17,9 @@ Chaque noeud est caractérisé par plusieurs attributs:
 
 ## Comment fonctionne l'algorithme ?
 
-On définit notre noeud _racine_
-On définit une borne supérieur, BS = +infini
-On créé _n_ enfant directs la racine, avec _n_ = nombre de pièces
+* On définit notre noeud _racine_
+* On définit une borne supérieur, BS = +infini
+* On créé _n_ enfant directs la racine, avec _n_ = nombre de pièces
 	* Pour chaque noeuds, évaluer le noeud (calculer sa _borne inférieur_)
 
 Ensuite, relancer l'algorithme sur le noeud avec la plus petite borne inférieur
