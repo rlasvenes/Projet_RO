@@ -44,5 +44,5 @@ Il y a plusieurs fichiers de données disponible, afin de vérifier le bon fonct
 
 # Screenshots
 
-![Screenshot montrant le résultat du programme avec un certains fichier de données](https://github.com/rlasvenes/Projet_RO/tree/master/screenshots/screen1.png)
+![Screenshot montrant le résultat du programme avec un certains fichier de données](https://github.com/rlasvenes/Projet_RO/blob/master/screenshots/screen1.png)
 
