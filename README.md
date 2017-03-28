@@ -27,7 +27,10 @@ puis créé ses enfants...
 
 # Compilation du programme
 ```
-cd Projet_RO
+git clone git@github.com:rlasvenes/Projet_RO.git
+```
+```
+cd Projet_RO/src
 ```
 ```
 g++ -std=c++11 *.cpp *.hpp -o RO
